@@ -29,24 +29,24 @@ test_dataset = get_dataset(test_samples_file_path)
 # genre features vocabulary
 genre_vocab = ['Film-Noir', 'Action', 'Adventure', 'Horror', 'Romance', 'War', 'Comedy', 'Western', 'Documentary',
                'Sci-Fi', 'Drama', 'Thriller',
-               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical']
+               'Crime', 'Fantasy', 'Animation', 'IMAX', 'Mystery', 'Children', 'Musical','Unknown']
 
-GENRE_FEATURES = {
-    'userGenre1': genre_vocab,
-    'userGenre2': genre_vocab,
-    'userGenre3': genre_vocab,
-    'userGenre4': genre_vocab,
-    'userGenre5': genre_vocab,
-    'movieGenre1': genre_vocab,
-    'movieGenre2': genre_vocab,
-    'movieGenre3': genre_vocab
-}
+GENRE_FEATURES = [
+    'userGenre1',
+    'userGenre2',
+    'userGenre3',
+    'userGenre4',
+    'userGenre5',
+    'movieGenre1',
+    'movieGenre2',
+    'movieGenre3' 
+]
 
 # all categorical features
 categorical_columns = []
-for feature, vocab in GENRE_FEATURES.items():
+for feature in GENRE_FEATURES:
     cat_col = tf.feature_column.categorical_column_with_vocabulary_list(
-        key=feature, vocabulary_list=vocab)
+        key=feature, vocabulary_list=genre_vocab)
     emb_col = tf.feature_column.embedding_column(cat_col, 10)
     categorical_columns.append(emb_col)
 # movie id embedding feature
@@ -66,7 +66,10 @@ numerical_columns = [tf.feature_column.numeric_column('releaseYear'),
                      tf.feature_column.numeric_column('movieRatingStddev'),
                      tf.feature_column.numeric_column('userRatingCount'),
                      tf.feature_column.numeric_column('userAvgRating'),
-                     tf.feature_column.numeric_column('userRatingStddev')]
+                     tf.feature_column.numeric_column('userRatingStddev'),
+                     tf.feature_column.numeric_column('userAvgReleaseYear'),
+                     tf.feature_column.numeric_column('userReleaseYearStddev')
+                    ]
 
 # cross feature between current movie and user historical movie
 rated_movie = tf.feature_column.categorical_column_with_identity(key='userRatedMovie1', num_buckets=1001)
@@ -81,6 +84,8 @@ inputs = {
     'userRatingStddev': tf.keras.layers.Input(name='userRatingStddev', shape=(), dtype='float32'),
     'userRatingCount': tf.keras.layers.Input(name='userRatingCount', shape=(), dtype='int32'),
     'releaseYear': tf.keras.layers.Input(name='releaseYear', shape=(), dtype='int32'),
+    'userAvgReleaseYear': tf.keras.layers.Input(name='userAvgReleaseYear', shape=(), dtype='float32'),
+    'userReleaseYearStddev': tf.keras.layers.Input(name='userReleaseYearStddev', shape=(), dtype='float32'),
 
     'movieId': tf.keras.layers.Input(name='movieId', shape=(), dtype='int32'),
     'userId': tf.keras.layers.Input(name='userId', shape=(), dtype='int32'),
